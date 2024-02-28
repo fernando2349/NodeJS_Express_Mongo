@@ -19,5 +19,9 @@
     "\"Backend\"]"
   ],
   "author": "\"Mario Fernando Prada Tamara\"",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "mongoose": "^8.2.0"
+  }
 }
