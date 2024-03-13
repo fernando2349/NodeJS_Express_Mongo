@@ -1,10 +1,10 @@
 const express = require('express');
-const Curso = require ('../models/cursos_model');
+const Curso = require ('../models/curso_model');
 const ruta = express.Router();
 
 //Endpoint tipo GET
 ruta.get('/', (req,res)=>{
-    res.json('Respuesta a peticion Get de UISUARIOS funcinando correctamente...');
+    res.json('Respuesta a peticion Get de USUARIOS funcinando correctamente...');
 });
 
 

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const usuarioSchema = new mongoose.Schema({
+    
     email:{
         type:String,
         require: true
@@ -22,5 +23,6 @@ const usuarioSchema = new mongoose.Schema({
         require: false
     }
 });
+
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
