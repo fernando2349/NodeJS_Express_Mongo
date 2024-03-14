@@ -1,11 +1,10 @@
 const express = require('express');
-const Usuario = require ('../models/usuario_model');
-const Joi = require('@hapi/joi');
+const logic = require ('../logic/usuario_logic');
 const ruta = express.Router();
 
 //Endpoint TIPO GET: un punto de acceso o una URL específica que un servicio o aplicación expone para realizar operaciones o intercambiar información. Cada endpoint está asociado con una acción o recurso específico.
 ruta.get('/',(req, res) => {
-    let resultado = listarUsuarioActivos();
+    let resultado = logic.listarUsuarioActivos();
     resultado.then(usuarios => {
     res.json(usuarios)
     }).catch(err => {
@@ -16,29 +15,11 @@ ruta.get('/',(req, res) => {
       )
     })
     });
-
-// Validaciones para el objeto usuario
-const schema = Joi.object({
-    nombre: Joi.string()
-        .min(3)
-        .max(30)
-        .required()
-        .pattern(/^[A-Za-záéíóú ]{3,30}$/),
-
-    password: Joi.string()
-        .pattern(/^[a-zA-Z0-9]{3,30}$/),
-
-    email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'edu', 'co'] } })
-});
-
-
-
 //Entpoint de tipo POST para el recurso USUARIOS
 ruta.post('/', (req, res) => {
     let body = req.body;
 
-    const {error, value} = schema.validate({nombre: body.nombre, email: body.email});
+    const {error, value} = logic.Schema.validate({nombre: body.nombre, email: body.email});
     if(!error){
         let resultado = crearUsuario(body);
 
@@ -58,12 +39,11 @@ ruta.post('/', (req, res) => {
         })
     }
 }); 
-
 //Endpoint de tipo PUT para actualizar los datos del usuario 
 ruta.put('/:email', (req, res) => {
-    const {error, value} = schema.validate({nombre: req.body.nombre});
+    const {error, value} = logic.Schema.validate({nombre: req.body.nombre});
     if(!error){
-        let resultado = actualizarUsuario(req.params.email, req.body);
+        let resultado = logic.actualizarUsuario(req.params.email, req.body);
         resultado.then(valor => {
             res.json({
                 valor
@@ -79,9 +59,11 @@ ruta.put('/:email', (req, res) => {
         })
     }
 });
+
+
 //Endpoint de tipo DELETE para el recurso USUARIOS
 ruta.delete('/:email', (req, res) => {
-    let resultado = desactivarUsuario(req.params.email);
+    let resultado = logic.desactivarUsuario(req.params.email);
     resultado.then(valor => {
         res.json({
             usuario: valor 
@@ -93,40 +75,4 @@ ruta.delete('/:email', (req, res) => {
     });
 });
 
-//Funcion asincronica para crear un objeto de tipo usuario
-async function crearUsuario(body){
-    let usuario = new Usuario({
-        email   : body.email,
-        nombre  : body.nombre,
-        password: body.password
-    });
-    return await usuario.save();
-}
-
-async function actualizarUsuario(email, body){
-    let usuario = await Usuario.findOneAndUpdate({"email": email}, {
-        $set: {
-            nombre: body.nombre,
-            password: body.password
-        }
-    }, {new: true});
-    return usuario;
-}
-
- //funcion asincrona para inactivar un usuario
- async function desactivarUsuario(email){
-    let usuario = await Usuario.findOneAndUpdate({"email": email},{
-        $set: {
-            estado: false
-        }
-    }, {new: true});
-    return usuario;
- }
-
-
- //Funcion asincronica para alistar todos los usurios activos 
- async function listarUsuarioActivos(){
-    let usuarios = await Usuario.find({"estado": true});
-    return usuarios;
-  }
 module.exports = ruta;
