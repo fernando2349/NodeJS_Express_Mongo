@@ -4,9 +4,18 @@ const Joi = require('@hapi/joi');
 const ruta = express.Router();
 
 //Endpoint TIPO GET: un punto de acceso o una URL específica que un servicio o aplicación expone para realizar operaciones o intercambiar información. Cada endpoint está asociado con una acción o recurso específico.
-ruta.get('/', (req, res)=>{
-    res.json('Respuesta a peticion Get de USUARIOS funcinando correctamente...');
-});
+ruta.get('/',(req, res) => {
+    let resultado = listarUsuarioActivos();
+    resultado.then(usuarios => {
+    res.json(usuarios)
+    }).catch(err => {
+      res.status(400).json(
+          {
+              err
+          }
+      )
+    })
+    });
 
 // Validaciones para el objeto usuario
 const schema = Joi.object({
@@ -22,6 +31,7 @@ const schema = Joi.object({
     email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'edu', 'co'] } })
 });
+
 
 
 //Entpoint de tipo POST para el recurso USUARIOS
@@ -113,4 +123,10 @@ async function actualizarUsuario(email, body){
     return usuario;
  }
 
+
+ //Funcion asincronica para alistar todos los usurios activos 
+ async function listarUsuarioActivos(){
+    let usuarios = await Usuario.find({"estado": true});
+    return usuarios;
+  }
 module.exports = ruta;
