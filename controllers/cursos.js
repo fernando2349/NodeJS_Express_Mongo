@@ -33,6 +33,15 @@ async function crearCurso(body){
     return await curso.save();
 }
 
+//Endpoint de tipo DELETE para el recurso CURSOS
+ruta.delete('/:id', (req, res) => {
+    let resultado = desactivarCurso(req.params.id);
+    resultado.then(curso => {
+        res.json(curso);
+    }).catch(err => {
+        res.status(400).json(err);
+    })
+})
 
 //Endpoint de tipo PUT para el recurso CURSOS 
 ruta.put('/:id', (req, res) => {
@@ -51,6 +60,17 @@ async function actualizarCurso(id, body){
         $set: {
             titulo: body.titulo,
             descripcion: body.descripcion
+        }
+    }, {new: true});
+    return curso;
+}
+
+
+//Funcion asincronica para inactivar cursos
+async function desactivarCurso(id){
+    let curso = await Curso.findByIdAndUpdate(id, {
+        $set: {
+            estado: false
         }
     }, {new: true});
     return curso;
